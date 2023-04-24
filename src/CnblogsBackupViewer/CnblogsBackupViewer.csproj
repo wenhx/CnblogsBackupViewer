@@ -9,6 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="BlogTemplate.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="BlogTemplate.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\CnblogsBackupViewer.Data\CnblogsBackupViewer.Data.csproj" />
   </ItemGroup>
 

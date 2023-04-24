@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -25,6 +26,7 @@ namespace CnblogsBackupViewer
     public partial class MainWindow : Window
     {
         DataProvider m_DataProvider;
+        string m_BlogTemplate;
 
         public MainWindow()
         {
@@ -62,7 +64,7 @@ namespace CnblogsBackupViewer
             {
                 m_DataProvider = DataProviderFactory.Create(file);
                 var index = 1;
-                UI_ListBox_Blogs.ItemsSource = m_DataProvider.Blogs.Select(b => new 
+                UI_ListBox_Blogs.ItemsSource = m_DataProvider.Blogs.Select(b => new BlogItem
                 {
                     Id = b.Id,
                     Index = "#" + index++,
@@ -73,6 +75,47 @@ namespace CnblogsBackupViewer
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        private void UI_ListBox_Blogs_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedItem = (UI_ListBox_Blogs.SelectedItem as BlogItem)!;
+            var blog = m_DataProvider.Blogs.Where(b => b.Id == selectedItem.Id).FirstOrDefault();
+            if (blog == null)
+            {
+                UI_WebBrowser.NavigateToString("文章不存在，可能被删除了。"); //非中文操作系统下可能会显示乱码
+            }
+            else
+            {
+                var blogContent = WrapWithHTMLTemplate(blog.Body);
+                UI_WebBrowser.NavigateToString(blogContent);
+            }
+        }
+
+        string WrapWithHTMLTemplate(string body)
+        {
+            try
+            {
+                if (m_BlogTemplate == null)
+                {
+                    m_BlogTemplate = File.ReadAllText("BlogTemplate.txt");
+                }
+                var blogContent = m_BlogTemplate.Replace("{BlogBody}", body);
+                return blogContent;
+            }
+            catch (Exception ex)
+            {
+                var message = $"加载HTML模板时发生错误，请检查程序运行目录是否存在BlogTemplate.txt文件。博客内容将以没有样式的形式显示。{Environment.NewLine}{Environment.NewLine}错误消息: {ex.Message}";
+                MessageBox.Show(message);
+                return body;
+            }
+        }
+
+        public class BlogItem
+        {
+            public int Id { get; set; }
+            public string Index { get; set; } = String.Empty;
+            public string Title { get; set; } = String.Empty;
         }
     }
 }

@@ -28,7 +28,7 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="4*" />
             </Grid.ColumnDefinitions>
-            <ListBox x:Name="UI_ListBox_Blogs" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" d:ItemsSource="{d:SampleData ItemCount=5}">
+            <ListBox x:Name="UI_ListBox_Blogs" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" d:ItemsSource="{d:SampleData ItemCount=5}" SelectionChanged="UI_ListBox_Blogs_SelectionChanged">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid Margin="0 0 0 5">
@@ -45,6 +45,7 @@
                 </ListBox.ItemTemplate>
             </ListBox>
             <GridSplitter Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" ShowsPreview="True" Background="#FFF0F0F0" Width="5"/>
+            <WebBrowser x:Name="UI_WebBrowser" Grid.Column="2"/>
         </Grid>
     </DockPanel>
 </Window>
