@@ -19,6 +19,17 @@ namespace CnblogsBackupViewer.Data.SQLite
             }
         }
 
+        public override Site Site
+        {
+            get
+            {
+                if (m_DbContext == null)
+                    throw new Exception("Call LoadData(string dataFilePath) first.");
+
+                return m_DbContext.Sites.First();
+            }
+        }
+
         public override bool IsFileSupported(string fileName)
         {
             return fileName.EndsWith(".db", StringComparison.OrdinalIgnoreCase);
@@ -29,6 +40,7 @@ namespace CnblogsBackupViewer.Data.SQLite
             m_DbContext?.Dispose();
             m_DbContext = new BlogDbContext(dataFilePath);
             m_BlogList = m_DbContext.Blogs.OrderByDescending(b => b.DateAdded).ToList();
+
         }
     }
 }

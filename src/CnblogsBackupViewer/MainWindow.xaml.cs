@@ -63,6 +63,16 @@ namespace CnblogsBackupViewer
             try
             {
                 m_DataProvider = DataProviderFactory.Create(file);
+                UpdateWindowTitle(m_DataProvider.Site);
+                UpdateListBoxItemsSource();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            void UpdateListBoxItemsSource()
+            {
                 var index = 1;
                 UI_ListBox_Blogs.ItemsSource = m_DataProvider.Blogs.Select(b => new BlogItem
                 {
@@ -71,13 +81,17 @@ namespace CnblogsBackupViewer
                     Title = b.Title,
                 });
             }
-            catch (Exception ex)
+
+            void UpdateWindowTitle(Site site)
             {
-                MessageBox.Show(ex.Message);
+                var title = string.IsNullOrWhiteSpace(site.Title) ? // XML 备份中没有这个字段。
+                    string.Format("{0} 的博客 - {1}", site.Author, this.Title) :
+                    string.Format("{0} - {1} - {2}", site.Title, site.Author, this.Title);
+                this.Title = title;
             }
         }
 
-        private void UI_ListBox_Blogs_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        void UI_ListBox_Blogs_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var selectedItem = (UI_ListBox_Blogs.SelectedItem as BlogItem)!;
             var blog = m_DataProvider.Blogs.Where(b => b.Id == selectedItem.Id).FirstOrDefault();
@@ -90,24 +104,24 @@ namespace CnblogsBackupViewer
                 var blogContent = WrapWithHTMLTemplate(blog.Body);
                 UI_WebBrowser.NavigateToString(blogContent);
             }
-        }
 
-        string WrapWithHTMLTemplate(string body)
-        {
-            try
+            string WrapWithHTMLTemplate(string body)
             {
-                if (m_BlogTemplate == null)
+                try
                 {
-                    m_BlogTemplate = File.ReadAllText("BlogTemplate.txt");
+                    if (m_BlogTemplate == null)
+                    {
+                        m_BlogTemplate = File.ReadAllText("BlogTemplate.txt");
+                    }
+                    var blogContent = m_BlogTemplate.Replace("{BlogBody}", body);
+                    return blogContent;
                 }
-                var blogContent = m_BlogTemplate.Replace("{BlogBody}", body);
-                return blogContent;
-            }
-            catch (Exception ex)
-            {
-                var message = $"加载HTML模板时发生错误，请检查程序运行目录是否存在BlogTemplate.txt文件。博客内容将以没有样式的形式显示。{Environment.NewLine}{Environment.NewLine}错误消息: {ex.Message}";
-                MessageBox.Show(message);
-                return body;
+                catch (Exception ex)
+                {
+                    var message = $"加载HTML模板时发生错误，请检查程序运行目录是否存在BlogTemplate.txt文件。博客内容将以没有样式的形式显示。{Environment.NewLine}{Environment.NewLine}错误消息: {ex.Message}";
+                    MessageBox.Show(message);
+                    return body;
+                }
             }
         }
 

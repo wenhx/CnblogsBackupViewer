@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CnblogsBackupViewer.Data.SQLite
 {
-    public class BlogDbContext : DbContext
+    internal class BlogDbContext : DbContext
     {
         static readonly string _ConnectionStringTemplate = "Data Source={0};Cache=Shared";
         readonly string m_DataFilePath;
@@ -20,6 +20,8 @@ namespace CnblogsBackupViewer.Data.SQLite
 
         public DbSet<Blog> Blogs { get; set;}
 
+        public DbSet<Site> Sites { get; set;}
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             var connectionString = string.Format(_ConnectionStringTemplate, m_DataFilePath);
@@ -29,6 +31,7 @@ namespace CnblogsBackupViewer.Data.SQLite
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Blog>().ToTable("blog_Content");
+            modelBuilder.Entity<Site>().ToTable("blog_Config");
         }
     }
 }

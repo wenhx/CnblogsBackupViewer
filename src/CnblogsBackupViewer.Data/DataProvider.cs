@@ -12,5 +12,7 @@ namespace CnblogsBackupViewer.Data
         public abstract bool IsFileSupported(string fileName);
 
         public abstract IList<Blog> Blogs { get; }
+
+        public abstract Site Site { get; }
     }
 }
